@@ -1,0 +1,329 @@
+\section{Full proof of the partition principle}
+\label{app:generic}
+
+We prove Proposition~\ref{prop:generic} with all quantifiers explicit.
+The argument is stated for a compact Riemannian manifold with normalized volume measure.
+The same proof applies to any metric probability space that has the required isoperimetric and coarea properties.
+
+For a fixed public random string $r$, the map $S\mapsto A(S;r)$ has finite range because the sample space is finite.
+We denote this range by $\cY_r$.
+For $y\in\cY_r$, let
+\[
+ h_{r,y}(\theta)=\Pr_{S\sim P_\theta^m}\{A(S;r)=y\}.
+\]
+Assumption 1 and data processing imply
+\begin{equation}
+ |h_{r,y}(\theta)-h_{r,y}(\phi)|
+ \le \TV(P_\theta^m,P_\phi^m)
+ \le\eta
+ \label{eq:app-event}
+\end{equation}
+whenever $\dist(\theta,\phi)\le R$.
+For the categorical family used in the paper, $h_{r,y}$ is continuous.
+Continuity also follows locally from the vanishing right side of the KL bound as $\dist(\theta,\phi)\downarrow0$.
+
+Define
+\begin{align*}
+ L_r&=\int_M\sum_{y\in\cY_r}h_{r,y}(\theta)
+               \ell(y,\theta)\,d\mu(\theta),\\
+ D_r&=\int_M\left(1-\sum_{y\in\cY_r}h_{r,y}(\theta)^2\right)d\mu(\theta).
+\end{align*}
+The hypotheses of Proposition~\ref{prop:generic} hold pointwise in $\theta$.
+Fubini's theorem therefore gives
+\[
+ \E_rL_r\le\alpha,
+ \qquad
+ \E_rD_r\le\rho.
+\]
+By Markov's inequality,
+\[
+ \Pr_r\{L_r>3\alpha\}<\frac13,
+ \qquad
+ \Pr_r\{D_r>3\rho\}<\frac13.
+\]
+There is consequently a fixed seed $r$ for which both inequalities in \eqref{eq:goodseed} hold.
+We fix it below and suppress $r$ from the notation.
+
+\subsection{Canonical cells and coverage}
+
+For every $y\in\cY_r$, define the open canonical cell
+\[
+ F_y=\{\theta:h_y(\theta)>3/4\}.
+\]
+Distinct canonical cells are disjoint.
+If $\theta\notin\cup_yF_y$, every coordinate of the probability vector $(h_y(\theta))_y$ is at most $3/4$.
+Among probability vectors with this constraint, the squared $\ell_2$ norm is maximized by $(3/4,1/4,0,\ldots)$.
+Thus
+\[
+ 1-\sum_yh_y(\theta)^2\ge 1-\frac{10}{16}=\frac38.
+\]
+Since $D_r\le3\rho$,
+\begin{equation}
+ \mu(N)\le8\rho,
+ \qquad
+ N:=M\setminus\bigcup_yF_y.
+ \label{eq:noncan-volume}
+\end{equation}
+This proves \eqref{eq:cover}.
+
+For $t\in[0,R]$, put
+\[
+ G_{y,t}=\{\theta:\dist(\theta,F_y)<t\}
+\]
+for $t>0$, and take $G_{y,0}=F_y$.
+If $\theta\in\overline{G_{y,t}}$, choose a sequence $\phi_n\in F_y$ with
+$\dist(\theta,\phi_n)\le t+o(1)$.
+Equation~\eqref{eq:app-event} and continuity give
+\begin{equation}
+ h_y(\theta)\ge 3/4-\eta=\beta>1/2.
+ \label{eq:app-beta}
+\end{equation}
+It follows that the closures of $G_{y,t}$ and $G_{z,t}$ are disjoint when $y\ne z$.
+
+\subsection{The distortion budget}
+
+For any $t\in[0,R]$, disjointness and \eqref{eq:app-beta} give
+\begin{align}
+ 3\alpha
+ &\ge \int_M\sum_y h_y(\theta)\ell(y,\theta)d\mu(\theta)\nonumber\\
+ &\ge \beta\sum_y\int_{G_{y,t}}\ell(y,\theta)d\mu(\theta).
+ \label{eq:app-dist}
+\end{align}
+Let $\cG_t$ be the indices satisfying
+\[
+ \frac{1}{\mu(G_{y,t})}
+ \int_{G_{y,t}}\ell(y,\theta)d\mu(\theta)
+ \le K\alpha.
+\]
+Empty cells are omitted.
+Equation~\eqref{eq:app-dist} implies
+\begin{equation}
+ \sum_{y\notin\cG_t}\mu(G_{y,t})
+ \le\frac{3}{\beta K}.
+ \label{eq:app-badmass}
+\end{equation}
+The thickened cells contain the original canonical cells, so \eqref{eq:noncan-volume} and \eqref{eq:app-badmass} yield
+\begin{equation}
+ \sum_{y\in\cG_t}\mu(G_{y,t})
+ \ge 1-8\rho-\frac{3}{\beta K}.
+ \label{eq:app-goodmass}
+\end{equation}
+For $K\ge32$, $\eta<1/4$, and sufficiently small universal $\rho$, the right side is at least a positive universal constant $c_*$.
+
+Fix $y\in\cG_t$.
+Markov's inequality within the cell gives
+\[
+ \mu\{\theta\in G_{y,t}:\ell(y,\theta)\le2K\alpha\}
+ \ge\frac12\mu(G_{y,t}).
+\]
+Assumption 2 of Proposition~\ref{prop:generic} therefore implies
+\begin{equation}
+ \mu(G_{y,t})\le2s.
+ \label{eq:app-cellsmall}
+\end{equation}
+Assumption 3, \eqref{eq:app-goodmass}, and \eqref{eq:app-cellsmall} now show that for almost every $t$,
+\begin{equation}
+ \sum_y\Per_\mu(G_{y,t})
+ \ge \lambda\sum_{y\in\cG_t}\mu(G_{y,t})
+ \ge c_*\lambda.
+ \label{eq:app-per}
+\end{equation}
+
+\subsection{Boundary points are noncanonical}
+
+Fix $t\in(0,R]$ and $\theta\in\partial G_{y,t}$.
+Then $\theta\notin F_y$, since every point of the open set $F_y$ is interior to $G_{y,t}$.
+If $\theta\in F_z$ for some $z\ne y$, then $h_z(\theta)>3/4$ while \eqref{eq:app-beta} gives $h_y(\theta)\ge\beta>1/2$.
+This is impossible.
+Thus $\theta\in N$.
+More generally, every point of the shell $G_{y,R}\setminus F_y$ is on the boundary of $G_{y,t}$ at
+$t=\dist(\theta,F_y)$ and belongs to $N$ by the same argument.
+The shells for distinct $y$ are disjoint because the closures of $G_{y,R}$ are disjoint.
+Consequently,
+\begin{equation}
+ \sum_y\mu(G_{y,R}\setminus F_y)\le\mu(N)\le8\rho.
+ \label{eq:app-shell}
+\end{equation}
+
+The distance function to a set has metric gradient one almost everywhere outside its closure.
+The coarea formula, first for regular distance levels and then by approximation, gives
+\begin{equation}
+ \int_0^R\Per_\mu(G_{y,t})dt
+ \le\mu(G_{y,R}\setminus F_y).
+ \label{eq:app-coarea}
+\end{equation}
+Summing \eqref{eq:app-coarea}, using \eqref{eq:app-shell}, and integrating \eqref{eq:app-per} gives
+\[
+ c_*R\lambda
+ \le\int_0^R\sum_y\Per_\mu(G_{y,t})dt
+ \le8\rho.
+\]
+This is \eqref{eq:generic} and completes the proof of Proposition~\ref{prop:generic}.
+
+\section{Continuity of the categorical experiment}
+\label{app:kl}
+
+We prove Lemma~\ref{lem:kl}.
+For brevity, write $c_i=\cos\theta_i$, $c'_i=\cos\phi_i$, and similarly $s_i,s'_i$.
+Since $a\le1/2$, every nonzero atom of $p_\phi$ is at least $1/(8d)$.
+The inequality $\KL(p\Vert q)\le\chi^2(p,q)$ gives
+\begin{align*}
+ \KL(p_\theta\Vert p_\phi)
+ &\le \sum_{i,j}
+ \frac{(p_\theta(i,j)-p_\phi(i,j))^2}{p_\phi(i,j)}\\
+ &\le 8d\sum_{i=1}^d
+ \frac{2a^2(c_i-c'_i)^2+2a^2(s_i-s'_i)^2}{16d^2}\\
+ &=\frac{a^2}{d}\sum_{i=1}^d
+ \big((c_i-c'_i)^2+(s_i-s'_i)^2\big).
+\end{align*}
+The expression in parentheses is the squared chord length between two points on the unit circle.
+It is at most $\Delta_i^2$, proving \eqref{eq:kl}.
+
+KL tensorizes over independent samples.
+Pinsker's inequality therefore gives
+\begin{equation}
+ \TV(p_\theta^m,p_\phi^m)
+ \le a\sqrt{\frac{m}{2d}}\,dist(\theta,\phi).
+ \label{eq:app-pinsker}
+\end{equation}
+Choose $c<\sqrt2/15$ in the radius of Lemma~\ref{lem:kl}.
+Then the right side of \eqref{eq:app-pinsker} is below $1/15$.
+The probability of any event, including the event that a fixed-seed estimator returns a specified output, changes by at most this total variation distance.
+This proves the lemma.
+
+\section{The small-basin lemma}
+\label{app:basin}
+
+We prove Lemma~\ref{lem:basin}.
+Fix $q\in\Delta_k$ and define $u_i$ as in the main text.
+Let $v(\theta_i)=(\cos\theta_i,\sin\theta_i)$.
+If
+\[
+ L_i(\theta)=\sum_{j=1}^4|q(i,j)-p_\theta(i,j)|,
+\]
+then the triangle inequality in each signed pair gives
+\begin{equation}
+ \norm{u_i-v(\theta_i)}_2
+ \le\frac{2d}{a}L_i(\theta).
+ \label{eq:app-ui}
+\end{equation}
+
+We next record the radial projection fact used in \eqref{eq:decode}.
+For any $u\in\R^2$, there is an angle $\varphi$ such that, for every $\theta$,
+\begin{equation}
+ \min\{1,\dist_\T(\theta,\varphi)\}
+ \le\pi\norm{u-v(\theta)}_2.
+ \label{eq:app-radial}
+\end{equation}
+If $\norm{u}_2<1/2$, the right side is at least $\pi/2$ and the claim is immediate.
+Otherwise choose $v(\varphi)=u/\norm{u}_2$.
+Then
+\[
+ \norm{v(\theta)-v(\varphi)}_2
+ \le2\norm{v(\theta)-u}_2.
+\]
+For an angular separation $x\in[0,\pi]$, the chord length is $2\sin(x/2)\ge2x/\pi$.
+Equation~\eqref{eq:app-radial} follows.
+
+Combining \eqref{eq:app-ui} and \eqref{eq:app-radial}, and summing over blocks, yields
+\begin{align*}
+ \TV(q,p_\theta)
+ &=\frac12\sum_{i,j}|q(i,j)-p_\theta(i,j)|\\
+ &\ge\frac{a}{4\pi d}\sum_{i=1}^d
+ \min\{1,\dist_\T(\theta_i,\varphi_i)\}.
+\end{align*}
+Mass of $q$ on unused symbols only increases the left side, so the inequality holds for all $q\in\Delta_k$.
+
+For independent uniform angles $\Theta_i$, the circular distance to a fixed $\varphi_i$ is uniform on $[0,\pi]$.
+Thus, with $Z_i=\min\{1,\dist_\T(\Theta_i,\varphi_i)\}$,
+\[
+ \mu_0:=\E Z_i
+ =\frac1\pi\left(\int_0^1x\,dx+\int_1^\pi1\,dx\right)
+ =1-\frac1{2\pi}.
+\]
+If $\TV(q,p_\Theta)\le2K\alpha$ and $a=C_0\alpha$, then
+\[
+ \frac1d\sum_iZ_i\le\frac{8\pi K}{C_0}.
+\]
+Choose $C_0\ge16\pi K/\mu_0$.
+Hoeffding's inequality gives
+\[
+ \Pr\left\{\frac1d\sum_iZ_i\le\frac{\mu_0}{2}\right\}
+ \le\exp\left(-\frac{\mu_0^2d}{2}\right).
+\]
+Taking $c_0=\mu_0^2/2$ proves \eqref{eq:smallbasin}.
+
+\section{Isoperimetry on the flat torus}
+\label{app:torus}
+
+We prove Lemma~\ref{lem:torusiso}.
+Let $\gamma_d$ be standard Gaussian measure on $\R^d$ and define
+\[
+ T(x)_i=2\pi\Phi(x_i)\pmod {2\pi}.
+\]
+Each coordinate is uniform on the circle, so $T_\#\gamma_d=\mu$.
+Moreover,
+\[
+ \sup_x\left|\frac{d}{dx}2\pi\Phi(x)\right|
+ =\sqrt{2\pi}.
+\]
+Taking shortest circular distances can only reduce distance, hence $T$ is $L=\sqrt{2\pi}$-Lipschitz in the product Euclidean metrics.
+
+Fix measurable $E\subseteq\T^d$ and set $A=T^{-1}(E)$.
+Lipschitzness implies
+\[
+ A_t\subseteq T^{-1}(E_{Lt}).
+\]
+The Gaussian isoperimetric inequality \citep{borell1975,sudakov1978} states
+\[
+ \gamma_d(A_t)\ge
+ \Phi\big(\Phi^{-1}(\gamma_d(A))+t\big).
+\]
+Since $\gamma_d(A)=\mu(E)$, we obtain
+\[
+ \mu(E_{Lt})\ge
+ \Phi\big(\Phi^{-1}(\mu(E))+t\big).
+\]
+Subtracting $\mu(E)$, dividing by $Lt$, and taking a lower limit at zero proves
+\[
+ \Per_\mu(E)\ge\frac{\phi(\Phi^{-1}(\mu(E)))}{\sqrt{2\pi}}.
+\]
+
+For $0<u\le1/2$, standard Gaussian tail bounds imply
+\begin{equation}
+ \phi(\Phi^{-1}(u))
+ \ge c u\sqrt{\log(1/u)}
+ \label{eq:app-profile}
+\end{equation}
+for a universal $c>0$.
+If $u\le2e^{-c_0d}$ and $d$ is above a universal constant, then
+$\log(1/u)\ge c_0d/2$.
+Substitution into \eqref{eq:app-profile} proves \eqref{eq:smalliso}.
+
+\section{Completion of Theorem~\ref{thm:main}}
+\label{app:main}
+
+The application of Proposition~\ref{prop:generic} in the main text uses
+\[
+ R=\min\left\{1,\frac{c_2\sqrt d}{a\sqrt m}\right\}.
+\]
+Lemma~\ref{lem:kl} verifies sample continuity at this radius after reducing $c_2$ if needed.
+When the second term exceeds one, Equation~\eqref{eq:app-pinsker} verifies continuity throughout the unit radius because
+$a\sqrt{m/d}<c_2$.
+
+Proposition~\ref{prop:generic} and Lemma~\ref{lem:torusiso} give
+\[
+ R\sqrt d\le C\rho.
+\]
+Choose $d_0$ and $\rho_0$ so that $\sqrt d>C\rho$ for $d\ge d_0$ and $\rho\le\rho_0$.
+Then $R\ne1$, so
+\[
+ \frac{c_2d}{a\sqrt m}\le C\rho.
+\]
+Rearranging and using $a=C_0\alpha$ gives
+\[
+ m\ge \frac{c_2^2}{C^2C_0^2}
+       \frac{d^2}{\alpha^2\rho^2}.
+\]
+Finally, for $k\ge8$, $d=\lfloor k/4\rfloor\ge k/8$.
+Increasing $k_0$ to ensure $d\ge d_0$ proves Theorem~\ref{thm:main}.

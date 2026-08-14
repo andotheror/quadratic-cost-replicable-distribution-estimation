@@ -1,0 +1,446 @@
+\documentclass[twoside]{article}
+\usepackage[preprint]{aistats2027}
+\usepackage[round,authoryear]{natbib}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,citecolor=blue,linkcolor=blue,urlcolor=blue]{hyperref}
+\renewcommand{\bibname}{References}
+\renewcommand{\bibsection}{\subsubsection*{\bibname}}
+\bibliographystyle{apalike}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{remark}[theorem]{Remark}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\newcommand{\E}{\mathbb E}
+\newcommand{\R}{\mathbb R}
+\newcommand{\T}{\mathbb T}
+\newcommand{\TV}{d_{\mathrm{TV}}}
+\newcommand{\KL}{D_{\mathrm{KL}}}
+\newcommand{\cY}{\mathcal Y}
+\newcommand{\cF}{\mathcal F}
+\newcommand{\cG}{\mathcal G}
+\newcommand{\1}{\mathbf 1}
+\newcommand{\Per}{\operatorname{Per}}
+\newcommand{\dist}{\operatorname{dist}}
+\newcommand{\vol}{\operatorname{vol}}
+\newcommand{\norm}[1]{\left\lVert #1\right\rVert}
+\newcommand{\Oh}{\mathcal O}
+\newcommand{\Om}{\Omega}
+
+\hypersetup{pdftitle={The Quadratic Cost of Replicable Distribution Estimation},pdfauthor={Pahan Dewasurendra},pdfkeywords={quadratic, cost, replicable, distribution, estimation, estimating, symbols, expected, total-variation},pdfsubject={preprint}}
+\begin{document}
+\runningauthor{}
+
+\twocolumn[
+\aistatstitle{The Quadratic Cost of Replicable Distribution Estimation}
+
+\aistatsauthor{Pahan Dewasurendra}
+\aistatsaddress{Johns Hopkins University}
+]
+
+\begin{abstract}
+Estimating a distribution on $k$ symbols to expected total-variation error $\alpha$ needs $\Theta(k/\alpha^2)$ samples.
+Under algorithmic replicability, the best known upper bound is $O(k^2\log(1/\rho)/(\alpha^2\rho^2))$.
+Whether the quadratic alphabet dependence is necessary was left open by Bun et al.
+We prove that it is.
+Every $\rho$-replicable estimator with expected error at most $\alpha$ requires
+\[
+  \Omega\!\left(\frac{k^2}{\alpha^2\rho^2}\right)
+\]
+samples, for all sufficiently small universal $\alpha$ and $\rho$.
+The lower bound holds for arbitrary randomized estimators and matches every polynomial dependence in the known upper bound.
+Our proof introduces an average-distortion partition principle.
+Fixing the public randomness turns a replicable estimator into canonical output cells.
+Expected accuracy does not bound every cell, so bounded-diameter partition arguments do not apply.
+Instead, we show that cells with low average distortion cover constant measure, that each such cell has exponentially small measure, and that Gaussian-profile isoperimetry forces total boundary $\Omega(\sqrt{k})$.
+The hard instances form a smooth toroidal family of categorical distributions.
+Nearby parameters generate statistically indistinguishable samples at scale $\sqrt{k}/(\alpha\sqrt m)$.
+Thickening all canonical cells to this scale converts their boundary into nonreplicability, yielding the result by coarea.
+\end{abstract}
+
+\section{Introduction}
+
+Suppose two laboratories run the same randomized analysis with the same published random seed, but collect independent data from the same population.
+Algorithmic replicability asks that they return exactly the same answer with high probability \citep{impagliazzo2022}.
+Formally, an estimator $A$ using $m$ samples is $\rho$-replicable if, for every data distribution $p$,
+\begin{equation}
+ \Pr_{r,S,S'\sim p^m}\{A(S;r)=A(S';r)\}\ge 1-\rho .
+ \label{eq:rep}
+\end{equation}
+The random string $r$ is shared and the samples $S,S'$ are independent.
+Exact agreement makes this requirement much stronger than ordinary concentration.
+
+We study the most basic nonparametric estimation problem.
+Given samples from an arbitrary distribution $p$ on $[k]$, output $\widehat p$ satisfying
+\begin{equation}
+ \E_{r,S}\TV(\widehat p,p)\le \alpha .
+ \label{eq:acc}
+\end{equation}
+Without stability, the minimax sample complexity is $\Theta(k/\alpha^2)$ \citep{devroye2001}.
+\citet{bun2023} obtained the first replicable estimator by converting a private histogram estimator \citep{diakonikolas2015,acharya2021}.
+Their bound is
+\begin{equation}
+ O\!\left(\frac{k^2\log(1/\rho)}{\alpha^2\rho^2}\right),
+ \label{eq:upper}
+\end{equation}
+after a constant rescaling of $\alpha$.
+They explicitly left open whether linear dependence on $k$ is possible.
+
+Our main result closes this question.
+
+\begin{theorem}[Main result]\label{thm:main}
+There are universal constants $c,\alpha_0,\rho_0>0$ and $k_0\in\mathbb N$ such that the following holds.
+For $k\ge k_0$, $0<\alpha\le\alpha_0$, and $0<\rho\le\rho_0$, every estimator satisfying \eqref{eq:rep} and \eqref{eq:acc} uses
+\begin{equation}
+ m\ge c\frac{k^2}{\alpha^2\rho^2}
+ \label{eq:lower}
+\end{equation}
+i.i.d. samples in the worst case.
+\end{theorem}
+
+Thus the known upper bound is optimal in all three polynomial dependences and is separated only by $\log(1/\rho)$.
+At constant $\alpha$ and $\rho$, replicability changes the alphabet dependence from linear to quadratic.
+The lower bound is information theoretic.
+It allows unbounded computation, a continuous output space, and arbitrary internal randomness.
+
+\paragraph{Why existing lower bounds do not settle this problem.}
+High-dimensional replicable mean estimation is governed by low-surface-area partitions \citep{hopkins2024}.
+That work also treats coordinate sampling, but its lower bounds require high-probability Euclidean or simultaneous coordinatewise accuracy.
+Our categorical experiment is a uniform-coordinate experiment whose expected total-variation loss controls only average $\ell_1$ error across coordinates.
+Converting this guarantee to their $\ell_2$ or $\ell_\infty$ criteria loses the factor needed to distinguish $k$ from $k^2$.
+There is a second obstacle.
+Equation~\eqref{eq:acc} controls expected loss, not a high-probability correctness event.
+Consequently, a fixed public seed can induce cells with long, inaccurate tendrils, so no uniform diameter bound is available.
+
+\paragraph{Our approach.}
+We prove a reusable partition principle based on \emph{average distortion}.
+For a fixed public seed, let $F_y$ contain parameters on which $y$ is output with probability above $3/4$.
+Replicability makes these canonical cells cover almost all parameter space.
+Rather than truncate every cell to an accuracy ball, we retain the cells whose average loss is $O(\alpha)$.
+Expected accuracy ensures that they still cover constant measure.
+If every low-loss basin has exponentially small measure, Gaussian-profile isoperimetry gives total perimeter $\Omega(\sqrt d)$ in dimension $d$.
+
+The hard family is parameterized by the flat torus $\T^d$ and has $4d$ symbols.
+The torus avoids the external boundary term that defeats a cube argument.
+Its coordinates modulate sine and cosine pairs in a categorical distribution.
+An arbitrary accurate output determines an angular center, and concentration shows that its low-loss basin has measure $\exp(-\Omega(d))$.
+Meanwhile, $m$ samples cannot distinguish parameters within distance
+$R=\Theta(\sqrt d/(\alpha\sqrt m))$.
+The $R$-thickenings of distinct canonical cells remain disjoint.
+Every thickened boundary is noncanonical and therefore incurs constant disagreement.
+Coarea gives $R\sqrt d=O(\rho)$, which rearranges to \eqref{eq:lower}.
+
+\paragraph{Relation to distribution testing.}
+Recent work obtains sharper and sometimes nearly linear $1/\rho$ costs for uniformity and closeness testing \citep{liu2024,diakonikolas2025,aamand2025}.
+Those tasks return one bit and need not reconstruct the distribution.
+Theorem~\ref{thm:main} shows a contrasting phenomenon for estimation: even a constant-error histogram has a quadratic joint cost in alphabet size and $1/\rho$.
+
+\section{Related work}
+
+\citet{impagliazzo2022} introduced the shared-randomness definition in \eqref{eq:rep}, under the original name reproducibility, and proved the sharp $\Theta(1/(\alpha^2\rho^2))$ scalar statistical-query rate at constant confidence.
+\citet{bun2023} connected replicability with differential privacy and perfect generalization.
+Their generic conversion produced the histogram upper bound \eqref{eq:upper} and the open question resolved here.
+List and certificate replicability quantify different relaxations of exact shared-seed agreement \citep{dixon2023}.
+Our lower bound concerns the original pointwise definition and therefore does not assert a lower bound for those relaxations.
+
+The closest geometric work is \citet{hopkins2024}.
+It relates replicable high-dimensional mean estimation to isoperimetric tilings, proves optimal Euclidean mean-estimation rates, and treats the $N$-coin problem under vector and coordinate sampling.
+Its estimator-to-partition reduction uses cells with a Euclidean radius guarantee, obtained from high-probability correctness.
+Our Proposition~\ref{prop:generic} has a different input and conclusion.
+It starts from expected loss, allows individual canonical cells to be inaccurate on subsets of their volume, and combines an average-distortion budget with small-basin isoperimetry.
+The categorical experiment \eqref{eq:family} can be viewed as uniform coordinate sampling.
+The key difference from their $N$-coin lower bounds is the guarantee: expected total variation permits a canonical output to be inaccurate on a subset of coordinates and parameters, while their high-probability $\ell_2$ and $\ell_\infty$ guarantees produce bounded-radius cells.
+
+Replicable distribution testing was developed for uniformity, identity, closeness, and independence \citep{liu2024,diakonikolas2025}.
+The later structural theory of \citet{aamand2025} shows that binary testers can be reduced to canonical random-threshold form and develops chaining lower bounds.
+These testing results can beat quadratic $1/\rho$ overhead in some regimes.
+They do not estimate an arbitrary histogram or bound its expected total-variation loss.
+To our knowledge, no work after \citet{bun2023} gave a lower bound with superlinear alphabet dependence for that problem.
+
+\section{Preliminaries}
+
+Write $\Delta_k$ for the simplex on $[k]$ and
+$\TV(p,q)=\frac12\sum_x|p(x)-q(x)|$.
+An estimator is a randomized map $A:[k]^m\times\mathcal R\to\Delta_k$.
+We impose no restriction on $\mathcal R$ or on the range of $A$.
+Once $r$ is fixed, however, its range has size at most $k^m$.
+
+For a compact Riemannian manifold $M$ with probability measure $\mu$, let
+\[
+ E_t=\{x\in M:\dist(x,E)<t\}
+\]
+and define the outer Minkowski perimeter
+\[
+ \Per_\mu(E)=\liminf_{t\downarrow0}\frac{\mu(E_t)-\mu(E)}{t}.
+\]
+We use the standard coarea identity for distance functions.
+In particular, for measurable $E$ and $R>0$,
+\begin{equation}
+ \int_0^R \Per_\mu(E_t)\,dt
+ \le \mu(E_R\setminus E),
+ \label{eq:coarea}
+\end{equation}
+with equality for regular sets and almost every level.
+The inequality is all that we need.
+
+\section{An average-distortion partition principle}
+
+We first isolate the proof mechanism.
+Let $\{P_\theta:\theta\in M\}$ be a family of data distributions and let $\ell(y,\theta)\ge0$ be the loss of output $y$.
+Assume that $\theta\mapsto P_\theta^m$ is continuous in total variation.
+The following proposition turns three geometric and statistical properties into a replicability lower bound.
+
+\begin{proposition}[Distortion to boundary]\label{prop:generic}
+Fix $0<\eta<1/4$, $K\ge 32$, and $R,\lambda>0$.
+Suppose:
+\begin{enumerate}
+ \item $\TV(P_\theta^m,P_\phi^m)\le\eta$ whenever $\dist(\theta,\phi)\le R$.
+ \item For every output $y$,
+ \begin{equation}
+  \mu\{\theta:\ell(y,\theta)\le2K\alpha\}\le s.
+  \label{eq:basin}
+ \end{equation}
+ \item $\Per_\mu(E)\ge\lambda\mu(E)$ whenever $\mu(E)\le2s$.
+\end{enumerate}
+If $A$ has expected loss at most $\alpha$ for every $\theta$ and is $\rho$-replicable for every $\theta$, then
+\begin{equation}
+ R\lambda\le C\rho
+ \label{eq:generic}
+\end{equation}
+for a universal $C$, provided $\rho$ is below a universal constant.
+\end{proposition}
+
+The proof is included because the expected-loss step is central.
+Let
+\[
+ L_r=\int_M\E_{S\sim P_\theta^m}
+  \ell(A(S;r),\theta)\,d\mu(\theta)
+\]
+and let $D_r$ be the analogous integrated probability that two runs disagree.
+Averaging and Markov's inequality give one seed $r$ with
+\begin{equation}
+ L_r\le3\alpha,
+ \qquad D_r\le3\rho.
+ \label{eq:goodseed}
+\end{equation}
+For this seed, write $h_y(\theta)=\Pr_S\{A(S;r)=y\}$ and
+\[
+ F_y=\{\theta:h_y(\theta)>3/4\}.
+\]
+If $\theta$ lies outside every $F_y$, then
+$\sum_yh_y(\theta)^2\le5/8$.
+It follows from \eqref{eq:goodseed} that
+\begin{equation}
+ \mu\left(\bigcup_yF_y\right)\ge1-8\rho.
+ \label{eq:cover}
+\end{equation}
+
+Let $G_{y,t}=(F_y)_t$ for $0\le t\le R$.
+Data processing and assumption 1 give
+\begin{equation}
+ h_y(\theta)\ge \beta:=3/4-\eta>1/2
+ \quad\text{on }G_{y,t}.
+ \label{eq:thickprob}
+\end{equation}
+Hence the closures of distinct $G_{y,t}$ are disjoint.
+Since the cells are disjoint, \eqref{eq:goodseed} and \eqref{eq:thickprob} imply
+\begin{equation}
+ \sum_y\int_{G_{y,t}}\ell(y,\theta)d\mu(\theta)
+ \le \frac{3\alpha}{\beta}.
+ \label{eq:distbudget}
+\end{equation}
+Call a cell good if its average loss is at most $K\alpha$.
+Equations \eqref{eq:cover} and \eqref{eq:distbudget} show that good cells cover at least
+$1-8\rho-3/(\beta K)$ measure.
+For every good cell, Markov's inequality and \eqref{eq:basin} give
+$\mu(G_{y,t})\le2s$.
+Assumptions 2 and 3 now yield
+\begin{equation}
+ \sum_y\Per_\mu(G_{y,t})\ge c\lambda
+ \label{eq:perlower}
+\end{equation}
+for almost every $t\in[0,R]$.
+
+A boundary point of $G_{y,t}$ belongs to no $F_z$.
+Indeed, membership in $F_z$ would contradict the disjointness following \eqref{eq:thickprob}.
+Its fixed-seed disagreement probability is therefore at least $3/8$.
+The union of all distance levels has measure at most $8\rho$ by \eqref{eq:goodseed}.
+Integrating \eqref{eq:perlower} and applying coarea gives $cR\lambda\le8\rho$.
+This proves Proposition~\ref{prop:generic}.
+The appendix records the measurability details and a finite-range reduction.
+
+\paragraph{Comparison with bounded-radius partitions.}
+The argument never claims that every $F_y$ has small diameter.
+It uses the integrated distortion budget \eqref{eq:distbudget} to keep enough small-measure cells.
+This is what permits the expected guarantee \eqref{eq:acc} without inserting an accuracy failure probability into the final rate.
+
+\section{A toroidal categorical family}
+
+Let $d=\lfloor k/4\rfloor$ and identify
+$\T^d=(\R/2\pi\mathbb Z)^d$ with normalized Haar measure $\mu$.
+Choose an amplitude $a=C_0\alpha$, where $C_0$ is a sufficiently large universal constant and $a\le1/2$.
+For $\theta\in\T^d$, define a distribution on $[d]\times[4]$ by
+\begin{align}
+ p_\theta(i,1)&=\frac{1+a\cos\theta_i}{4d}, &
+ p_\theta(i,2)&=\frac{1-a\cos\theta_i}{4d},\nonumber\\
+ p_\theta(i,3)&=\frac{1+a\sin\theta_i}{4d}, &
+ p_\theta(i,4)&=\frac{1-a\sin\theta_i}{4d}.
+ \label{eq:family}
+\end{align}
+Remaining symbols, if any, receive mass zero.
+Every coordinate block has mass $1/d$.
+
+\subsection{Nearby parameters are indistinguishable}
+
+Let $\Delta_i\in[-\pi,\pi]$ be the shortest signed difference between $\theta_i$ and $\phi_i$.
+
+\begin{lemma}[Sample continuity]\label{lem:kl}
+For the family \eqref{eq:family},
+\begin{equation}
+ \KL(p_\theta\Vert p_\phi)
+ \le \frac{a^2}{d}\sum_{i=1}^d\Delta_i^2.
+ \label{eq:kl}
+\end{equation}
+Consequently, for every event $B$ of $m$ samples,
+\begin{equation}
+ |p_\theta^m(B)-p_\phi^m(B)|<\frac1{15}
+ \label{eq:eventlip}
+\end{equation}
+whenever $\dist(\theta,\phi)\le
+c\sqrt d/(a\sqrt m)$.
+\end{lemma}
+
+The atom probabilities are at least $1/(8d)$.
+Bounding KL by chi-square, pairing the two cosine atoms and the two sine atoms, and using chord length at most arc length proves \eqref{eq:kl}.
+Tensorization and Pinsker's inequality prove \eqref{eq:eventlip}.
+
+\subsection{Accurate basins are exponentially small}
+
+The next lemma applies to every $q\in\Delta_k$, including outputs outside the hard family.
+
+\begin{lemma}[Small loss basins]\label{lem:basin}
+There are universal constants $c_0,C_0>0$ such that, with $a=C_0\alpha\le1/2$,
+\begin{equation}
+ \mu\{\theta:\TV(q,p_\theta)\le2K\alpha\}
+ \le e^{-c_0d}
+ \label{eq:smallbasin}
+\end{equation}
+for every $q\in\Delta_k$ and the fixed universal $K$ in Proposition~\ref{prop:generic}.
+\end{lemma}
+
+To see the mechanism, define
+\[
+ u_i=\frac{2d}{a}\big(q(i,1)-q(i,2),
+                       q(i,3)-q(i,4)\big).
+\]
+Choose $\varphi_i$ as the direction of $u_i$, arbitrarily when $u_i=0$, and set
+$Z_i(\theta)=\min\{1,\dist_{\T}(\theta_i,\varphi_i)\}$.
+Radial projection onto the unit circle gives
+\begin{equation}
+ \TV(q,p_\theta)
+ \ge \frac{a}{4\pi d}\sum_{i=1}^d Z_i(\theta).
+ \label{eq:decode}
+\end{equation}
+Under Haar measure the $Z_i$ are independent and
+$\E Z_i=1-1/(2\pi)$.
+For sufficiently large $C_0$, the event in \eqref{eq:smallbasin} forces their empirical mean below half its expectation.
+Hoeffding's inequality completes the proof.
+
+\subsection{Torus isoperimetry}
+
+Let $\Phi$ and $\phi$ denote the standard Gaussian cdf and density, and set
+$I_\gamma(u)=\phi(\Phi^{-1}(u))$.
+
+\begin{lemma}[Gaussian profile on the torus]\label{lem:torusiso}
+For every measurable $E\subseteq\T^d$,
+\begin{equation}
+ \Per_\mu(E)\ge\frac{I_\gamma(\mu(E))}{\sqrt{2\pi}}.
+ \label{eq:torusiso}
+\end{equation}
+In particular, if $\mu(E)\le2e^{-c_0d}$, then
+\begin{equation}
+ \Per_\mu(E)\ge c_1\sqrt d\,\mu(E)
+ \label{eq:smalliso}
+\end{equation}
+for all sufficiently large $d$.
+\end{lemma}
+
+There is a short transport proof.
+The coordinatewise map
+\[
+ T(x)_i=2\pi\Phi(x_i)\pmod {2\pi}
+\]
+pushes standard Gaussian measure on $\R^d$ to $\mu$ and is $\sqrt{2\pi}$-Lipschitz.
+If $A=T^{-1}(E)$, then $A_t\subseteq T^{-1}(E_{\sqrt{2\pi}t})$.
+Gaussian isoperimetry \citep{borell1975,sudakov1978} and differentiation at zero give \eqref{eq:torusiso}.
+The standard Gaussian-tail estimate
+$I_\gamma(u)\ge c u\sqrt{\log(1/u)}$ gives \eqref{eq:smalliso}.
+
+\section{Proof of the main theorem}
+
+Apply Proposition~\ref{prop:generic} with $K=32$ and $\eta=1/15$ on $M=\T^d$, with
+$P_\theta=p_\theta$ and loss
+$\ell(q,\theta)=\TV(q,p_\theta)$.
+Lemma~\ref{lem:basin} supplies assumption 2 with $s=e^{-c_0d}$.
+Lemma~\ref{lem:torusiso} supplies assumption 3 with $\lambda=c_1\sqrt d$.
+Lemma~\ref{lem:kl} supplies assumption 1 at radius
+\begin{equation}
+ R=\min\left\{1,\frac{c_2\sqrt d}{a\sqrt m}\right\}.
+ \label{eq:R}
+\end{equation}
+Proposition~\ref{prop:generic} yields
+\begin{equation}
+ \min\left\{1,\frac{c_2\sqrt d}{a\sqrt m}\right\}
+ \sqrt d\le C\rho.
+ \label{eq:finish}
+\end{equation}
+For $d$ above a universal constant and $\rho$ below a universal constant, the first branch in \eqref{eq:finish} is impossible.
+Therefore
+\[
+ m\ge c\frac{d^2}{a^2\rho^2}
+   =c'\frac{d^2}{\alpha^2\rho^2}.
+\]
+Since $d=\lfloor k/4\rfloor$, this proves Theorem~\ref{thm:main}.
+
+\begin{corollary}[Minimax complexity]\label{cor:minimax}
+Let $m^*_{\rm rep}(k,\alpha,\rho)$ be the minimum fixed sample size of a $\rho$-replicable estimator with worst-case expected TV loss at most $\alpha$.
+For the parameter range of Theorem~\ref{thm:main},
+\[
+ c\frac{k^2}{\alpha^2\rho^2}
+ \le m^*_{\rm rep}(k,\alpha,\rho)
+ \le C\frac{k^2\log(1/\rho)}{\alpha^2\rho^2}.
+\]
+\end{corollary}
+
+The upper bound is Theorem 6.14 of \citet{bun2023}, with constants rescaled to match expected TV loss.
+The remaining logarithm is the only unresolved factor.
+
+\section{Discussion}
+
+The lower bound identifies two independent sources of the quadratic cost.
+A categorical observation selects one of $d$ angular coordinates uniformly, which makes $m$-sample laws smooth at radius $\sqrt d/(\alpha\sqrt m)$.
+At the same time, accurate canonical outputs partition a $d$-dimensional parameter space into exponentially small cells, forcing boundary density $\sqrt d$.
+Their product is $d/(\alpha\sqrt m)$.
+
+The toroidal construction is not cosmetic.
+If one works in a parameter cube and applies Euclidean isoperimetry to truncated cells, the external cube boundary has normalized area of order $d$ and can dominate the desired $\sqrt d/\alpha$ internal boundary.
+Periodic sine-cosine encoding removes this loss while keeping every atom positive and the KL calculation elementary.
+
+Our result concerns the standard fixed-sample definition used for discrete distribution estimation.
+Adaptive expected-sample procedures can behave differently in replicability problems \citep{hopkins2024}.
+It is also open whether the logarithm in Corollary~\ref{cor:minimax} is necessary.
+The average-distortion principle may be useful for other estimation losses where expected accuracy does not produce bounded-radius cells.
+
+\bibliography{references}
+
+\appendix
+\input{appendix}
+
+\end{document}
